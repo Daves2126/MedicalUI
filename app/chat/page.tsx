@@ -247,11 +247,11 @@ function AuthenticatedChat() {
             </div>
           </div>
 
-          {/* Messages Area with Proper Scrolling */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="h-full p-4">
+          {/* Messages Area with Fixed Scrolling */}
+          <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+            <div className="flex-1 overflow-y-auto px-4 py-4">
               {messages.length === 0 ? (
-                <div className="max-w-3xl mx-auto h-full flex flex-col justify-center">
+                <div className="max-w-3xl mx-auto h-full flex flex-col justify-center min-h-[calc(100vh-200px)]">
                   {/* Welcome Message */}
                   <div className="text-center mb-8">
                     <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -272,7 +272,7 @@ function AuthenticatedChat() {
                   </div>
 
                   {/* Suggested Prompts */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     {suggestedPrompts.map((suggestion, index) => (
                       <Card 
                         key={index} 
@@ -292,7 +292,7 @@ function AuthenticatedChat() {
                   </div>
 
                   {/* Disclaimer */}
-                  <div className="mt-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                     <p className="text-sm text-amber-800">
                       <strong>Important:</strong> This AI provides general medical information only. 
                       Always consult qualified healthcare professionals for medical advice, diagnosis, or treatment.
@@ -300,53 +300,55 @@ function AuthenticatedChat() {
                   </div>
                 </div>
               ) : (
-                <div className="max-w-3xl mx-auto space-y-6 pb-6">
-                  {messages.map((message, index) => (
-                    <div
-                      key={message.id}
-                      className={`flex items-start space-x-4 ${
-                        message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                      }`}
-                    >
-                      {/* Avatar */}
-                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${
-                        message.role === 'user' 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        {message.role === 'user' ? (
-                          user?.photoURL ? (
-                            <img 
-                              src={user.photoURL || "/placeholder.svg"} 
-                              alt={user.displayName || 'User'} 
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <User className="h-5 w-5" />
-                          )
-                        ) : (
-                          <Bot className="h-5 w-5" />
-                        )}
-                      </div>
-
-                      {/* Message Content */}
-                      <div className={`flex-1 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block max-w-full ${
-                          message.role === 'user'
-                            ? 'bg-blue-600 text-white rounded-lg px-4 py-3'
-                            : 'bg-white border border-gray-200 rounded-lg px-4 py-3'
+                <div className="max-w-3xl mx-auto">
+                  <div className="space-y-6 pb-4">
+                    {messages.map((message, index) => (
+                      <div
+                        key={message.id}
+                        className={`flex items-start space-x-4 ${
+                          message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
+                        }`}
+                      >
+                        {/* Avatar */}
+                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${
+                          message.role === 'user' 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-200 text-gray-600'
                         }`}>
-                          <div className="whitespace-pre-wrap text-sm leading-relaxed break-words overflow-wrap-anywhere">
-                            {message.content}
-                            {/* Show typing cursor for assistant messages that are still loading */}
-                            {message.role === 'assistant' && isLoading && index === messages.length - 1 && (
-                              <span className="inline-block w-2 h-4 bg-gray-400 ml-1 animate-pulse"></span>
-                            )}
+                          {message.role === 'user' ? (
+                            user?.photoURL ? (
+                              <img 
+                                src={user.photoURL || "/placeholder.svg"} 
+                                alt={user.displayName || 'User'} 
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <User className="h-5 w-5" />
+                            )
+                          ) : (
+                            <Bot className="h-5 w-5" />
+                          )}
+                        </div>
+
+                        {/* Message Content */}
+                        <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                          <div className={`inline-block max-w-[85%] ${
+                            message.role === 'user'
+                              ? 'bg-blue-600 text-white rounded-lg px-4 py-3'
+                              : 'bg-white border border-gray-200 rounded-lg px-4 py-3'
+                          }`}>
+                            <div className="whitespace-pre-wrap text-sm leading-relaxed break-words word-wrap">
+                              {message.content}
+                              {/* Show typing cursor for assistant messages that are still loading */}
+                              {message.role === 'assistant' && isLoading && index === messages.length - 1 && (
+                                <span className="inline-block w-2 h-4 bg-gray-400 ml-1 animate-pulse"></span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                   <div ref={messagesEndRef} />
                 </div>
               )}
