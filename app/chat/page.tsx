@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Stethoscope, Send, User, Bot, ArrowLeft, Plus, Settings, Copy, ThumbsUp, ThumbsDown, RotateCcw, Square } from 'lucide-react'
+import { Stethoscope, Send, User, Bot, ArrowLeft, Plus, Settings, Square } from 'lucide-react'
 import Link from 'next/link'
 import { ProtectedRoute } from '@/components/auth/protected-route'
 import { UserProfile } from '@/components/auth/user-profile'
@@ -53,16 +53,26 @@ function AuthenticatedChat() {
     }
 
     setMessages(prev => [...prev, userMessage])
+    const currentInput = input
     setInput('')
     setIsLoading(true)
 
     try {
-      const response = await fetch('/api/chat', {
+      // Get JWT token from Firebase user
+      const token = await user?.getIdToken()
+      
+      if (!token) {
+        throw new Error('No authentication token available')
+      }
+
+      const response = await fetch('http://localhost:5043/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
+          message: currentInput,
           messages: [...messages, userMessage].map(m => ({
             role: m.role,
             content: m.content
@@ -71,12 +81,12 @@ function AuthenticatedChat() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to get response')
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const reader = response.body?.getReader()
-      if (!reader) throw new Error('No reader available')
-
+      // Since the API returns text/plain, we'll simulate streaming
+      const responseText = await response.text()
+      
       const assistantMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant' as const,
@@ -85,52 +95,35 @@ function AuthenticatedChat() {
 
       setMessages(prev => [...prev, assistantMessage])
 
-      const decoder = new TextDecoder()
-      let done = false
-
-      while (!done) {
-        const { value, done: readerDone } = await reader.read()
-        done = readerDone
-
-        if (value) {
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n')
-          
-          for (const line of lines) {
-            if (line.startsWith('0:')) {
-              try {
-                const data = JSON.parse(line.slice(2))
-                if (data.content) {
-                  setMessages(prev => 
-                    prev.map(msg => 
-                      msg.id === assistantMessage.id 
-                        ? { ...msg, content: msg.content + data.content }
-                        : msg
-                    )
-                  )
-                }
-              } catch (e) {
-                // Ignore parsing errors
-              }
-            }
-          }
-        }
+      // Simulate progressive typing effect
+      const words = responseText.split(' ')
+      
+      for (let i = 0; i < words.length; i++) {
+        const word = words[i] + (i < words.length - 1 ? ' ' : '')
+        
+        setMessages(prev => 
+          prev.map(msg => 
+            msg.id === assistantMessage.id 
+              ? { ...msg, content: msg.content + word }
+              : msg
+          )
+        )
+        
+        // Variable delay to simulate natural typing
+        const delay = Math.random() * 50 + 30 // 30-80ms delay
+        await new Promise(resolve => setTimeout(resolve, delay))
       }
+
     } catch (error) {
       console.error('Error:', error)
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'I apologize, but I encountered an error. Please try again later.'
+        content: 'I apologize, but I encountered an error connecting to the medical assistant service. Please try again later.'
       }])
     } finally {
       setIsLoading(false)
     }
-  }
-
-  const reload = () => {
-    // Implement reload functionality if needed
-    console.log('Reload last message')
   }
 
   const stop = () => {
@@ -181,10 +174,6 @@ function AuthenticatedChat() {
       e.preventDefault()
       handleSubmit(e as any)
     }
-  }
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
   }
 
   const handleSuggestedPrompt = (prompt: string) => {
@@ -319,7 +308,7 @@ function AuthenticatedChat() {
                     }`}
                   >
                     {/* Avatar */}
-                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                    <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center overflow-hidden ${
                       message.role === 'user' 
                         ? 'bg-blue-600 text-white' 
                         : 'bg-gray-200 text-gray-600'
@@ -329,7 +318,7 @@ function AuthenticatedChat() {
                           <img 
                             src={user.photoURL || "/placeholder.svg"} 
                             alt={user.displayName || 'User'} 
-                            className="w-10 h-10 rounded-full object-cover"
+                            className="w-full h-full object-cover"
                           />
                         ) : (
                           <User className="h-5 w-5" />
@@ -354,13 +343,6 @@ function AuthenticatedChat() {
                           )}
                         </div>
                       </div>
-
-                      {/* Message Actions - REMOVE THIS ENTIRE SECTION */}
-                      {message.role === 'assistant' && (
-                        <div className="flex items-center space-x-2 mt-2">
-                          {/* Remove all TooltipProvider sections with Copy, ThumbsUp, ThumbsDown, and RotateCcw buttons */}
-                        </div>
-                      )}
                     </div>
                   </div>
                 ))}

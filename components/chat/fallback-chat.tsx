@@ -5,67 +5,27 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Stethoscope, Send, User, Bot, ArrowLeft, Plus, Settings, Copy, ThumbsUp, ThumbsDown, RotateCcw, Square, AlertTriangle } from 'lucide-react'
+import { Stethoscope, Send, User, Bot, ArrowLeft, Plus, Settings, Square } from 'lucide-react'
 import Link from 'next/link'
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
-interface Message {
-  id: string
-  role: 'user' | 'assistant'
-  content: string
-}
-
 export default function FallbackChat() {
-  const [messages, setMessages] = useState<Message[]>([])
+  // Custom chat implementation for fallback
+  const [messages, setMessages] = useState<Array<{id: string, role: 'user' | 'assistant', content: string}>>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const suggestedPrompts = [
-    {
-      title: "Symptom Analysis",
-      prompt: "I've been experiencing a persistent headache for the past 3 days, along with mild nausea. What could be causing this?",
-      category: "symptoms"
-    },
-    {
-      title: "Medication Information",
-      prompt: "Can you explain how ibuprofen works and what are its common side effects?",
-      category: "medication"
-    },
-    {
-      title: "Preventive Care",
-      prompt: "What are the recommended health screenings for someone in their 40s?",
-      category: "prevention"
-    },
-    {
-      title: "Nutrition Guidance",
-      prompt: "What dietary changes can help manage high cholesterol naturally?",
-      category: "nutrition"
-    }
-  ]
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
-
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
-    }
-  }, [input])
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || isLoading) return
 
-    const userMessage: Message = {
+    const userMessage = {
       id: Date.now().toString(),
-      role: 'user',
+      role: 'user' as const,
       content: input
     }
 
@@ -74,6 +34,7 @@ export default function FallbackChat() {
     setIsLoading(true)
 
     try {
+      // Fallback to local API since authentication is not available
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -94,9 +55,9 @@ export default function FallbackChat() {
       const reader = response.body?.getReader()
       if (!reader) throw new Error('No reader available')
 
-      const assistantMessage: Message = {
+      const assistantMessage = {
         id: (Date.now() + 1).toString(),
-        role: 'assistant',
+        role: 'assistant' as const,
         content: ''
       }
 
@@ -138,12 +99,55 @@ export default function FallbackChat() {
       setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'I apologize, but I encountered an error. Please try again later.'
+        content: 'I apologize, but I encountered an error. Please try again later or sign in for full functionality.'
       }])
     } finally {
       setIsLoading(false)
     }
   }
+
+  const stop = () => {
+    setIsLoading(false)
+  }
+
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const suggestedPrompts = [
+    {
+      title: "Symptom Analysis",
+      prompt: "I've been experiencing a persistent headache for the past 3 days, along with mild nausea. What could be causing this?",
+      category: "symptoms"
+    },
+    {
+      title: "Medication Information",
+      prompt: "Can you explain how ibuprofen works and what are its common side effects?",
+      category: "medication"
+    },
+    {
+      title: "Preventive Care",
+      prompt: "What are the recommended health screenings for someone in their 40s?",
+      category: "prevention"
+    },
+    {
+      title: "Nutrition Guidance",
+      prompt: "What dietary changes can help manage high cholesterol naturally?",
+      category: "nutrition"
+    }
+  ]
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto'
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
+    }
+  }, [input])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -152,12 +156,8 @@ export default function FallbackChat() {
     }
   }
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-  }
-
   const handleSuggestedPrompt = (prompt: string) => {
-    setInput(prompt)
+    handleInputChange({ target: { value: prompt } } as any)
     textareaRef.current?.focus()
   }
 
@@ -182,25 +182,18 @@ export default function FallbackChat() {
           </Button>
         </div>
 
-        {/* Demo Mode Alert */}
-        <div className="p-4 border-b border-gray-200">
-          <Alert>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription className="text-xs">
-              Demo Mode: Authentication unavailable
-            </AlertDescription>
-          </Alert>
-        </div>
-
-        {/* Empty space where model selection and chat history were */}
+        {/* Empty space */}
         <div className="flex-1"></div>
 
         {/* Footer */}
         <div className="p-4 border-t border-gray-200">
-          <Link href="/" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm">
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
-          </Link>
+          <div className="flex items-center justify-between">
+            <Link href="/" className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 text-sm">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Home</span>
+            </Link>
+            <div className="text-xs text-gray-500">Demo Mode</div>
+          </div>
         </div>
       </div>
 
@@ -212,8 +205,8 @@ export default function FallbackChat() {
             <div>
               <h1 className="text-xl font-semibold text-gray-900">Medical Assistant</h1>
               <p className="text-sm text-gray-600">
-                AI-powered medical information assistant • 
-                <span className="text-green-600 ml-1">Demo Mode</span>
+                Demo mode - Sign in for full functionality • 
+                <span className="text-yellow-600 ml-1">Limited</span>
               </p>
             </div>
             <div className="flex items-center space-x-2">
@@ -250,9 +243,9 @@ export default function FallbackChat() {
                   health conditions, and provide general medical information. How can I assist you today?
                 </p>
                 <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-                  <Badge variant="secondary">Reliable</Badge>
-                  <Badge variant="secondary">24/7 Available</Badge>
-                  <Badge variant="secondary">Privacy First</Badge>
+                  <Badge variant="secondary">Demo Mode</Badge>
+                  <Badge variant="secondary">Limited Features</Badge>
+                  <Badge variant="secondary">Sign In for Full Access</Badge>
                 </div>
               </div>
 
@@ -321,13 +314,6 @@ export default function FallbackChat() {
                         )}
                       </div>
                     </div>
-
-                    {/* Message Actions - REMOVE THIS ENTIRE SECTION */}
-                    {message.role === 'assistant' && (
-                      <div className="flex items-center space-x-2 mt-2">
-                        {/* Remove all TooltipProvider sections with Copy, ThumbsUp, ThumbsDown buttons */}
-                      </div>
-                    )}
                   </div>
                 </div>
               ))}
@@ -346,7 +332,7 @@ export default function FallbackChat() {
                   <Textarea
                     ref={textareaRef}
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     placeholder="Ask me about symptoms, medications, or health conditions..."
                     className="min-h-[44px] max-h-32 resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500"
@@ -355,15 +341,27 @@ export default function FallbackChat() {
                   />
                 </div>
 
-                {/* Send Button */}
-                <Button 
-                  type="submit" 
-                  disabled={!input.trim() || isLoading}
-                  size="sm"
-                  className="mb-2"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
+                {/* Send/Stop Button */}
+                {isLoading ? (
+                  <Button 
+                    type="button" 
+                    onClick={stop}
+                    variant="outline"
+                    size="sm"
+                    className="mb-2"
+                  >
+                    <Square className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button 
+                    type="submit" 
+                    disabled={!input.trim()}
+                    size="sm"
+                    className="mb-2"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </form>
 
