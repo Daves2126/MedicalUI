@@ -325,7 +325,15 @@ function AuthenticatedChat() {
                         : 'bg-gray-200 text-gray-600'
                     }`}>
                       {message.role === 'user' ? (
-                        <User className="h-5 w-5" />
+                        user?.photoURL ? (
+                          <img 
+                            src={user.photoURL || "/placeholder.svg"} 
+                            alt={user.displayName || 'User'} 
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <User className="h-5 w-5" />
+                        )
                       ) : (
                         <Bot className="h-5 w-5" />
                       )}
@@ -347,70 +355,10 @@ function AuthenticatedChat() {
                         </div>
                       </div>
 
-                      {/* Message Actions */}
+                      {/* Message Actions - REMOVE THIS ENTIRE SECTION */}
                       {message.role === 'assistant' && (
                         <div className="flex items-center space-x-2 mt-2">
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => copyToClipboard(message.content)}
-                                >
-                                  <Copy className="h-3 w-3" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Copy message</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <ThumbsUp className="h-3 w-3" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Good response</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button variant="ghost" size="sm">
-                                  <ThumbsDown className="h-3 w-3" />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Poor response</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-
-                          {index === messages.length - 1 && !isLoading && (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => reload()}
-                                  >
-                                    <RotateCcw className="h-3 w-3" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>Regenerate response</p>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
+                          {/* Remove all TooltipProvider sections with Copy, ThumbsUp, ThumbsDown, and RotateCcw buttons */}
                         </div>
                       )}
                     </div>

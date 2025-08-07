@@ -322,51 +322,10 @@ export default function FallbackChat() {
                       </div>
                     </div>
 
-                    {/* Message Actions */}
+                    {/* Message Actions - REMOVE THIS ENTIRE SECTION */}
                     {message.role === 'assistant' && (
                       <div className="flex items-center space-x-2 mt-2">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => copyToClipboard(message.content)}
-                              >
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Copy message</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <ThumbsUp className="h-3 w-3" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Good response</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button variant="ghost" size="sm">
-                                <ThumbsDown className="h-3 w-3" />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Poor response</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        {/* Remove all TooltipProvider sections with Copy, ThumbsUp, ThumbsDown buttons */}
                       </div>
                     )}
                   </div>
