@@ -226,103 +226,107 @@ export default function FallbackChat() {
           </div>
         </div>
 
-        {/* Messages Area with Fixed Scrolling */}
-        <div className="flex-1 overflow-hidden flex flex-col min-h-0">
-          <div className="flex-1 overflow-y-auto px-4 py-4">
-            {messages.length === 0 ? (
-              <div className="max-w-3xl mx-auto h-full flex flex-col justify-center min-h-[calc(100vh-200px)]">
-                {/* Welcome Message */}
-                <div className="text-center mb-8">
-                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Bot className="h-8 w-8 text-blue-600" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    Welcome to MedChat AI
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    I'm your AI medical assistant. I can help you understand symptoms, medications, 
-                    health conditions, and provide general medical information. How can I assist you today?
-                  </p>
-                  <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
-                    <Badge variant="secondary">Demo Mode</Badge>
-                    <Badge variant="secondary">Limited Features</Badge>
-                    <Badge variant="secondary">Sign In for Full Access</Badge>
-                  </div>
-                </div>
-
-                {/* Suggested Prompts */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                  {suggestedPrompts.map((suggestion, index) => (
-                    <Card 
-                      key={index} 
-                      className="cursor-pointer hover:shadow-md transition-shadow border-gray-200"
-                      onClick={() => handleSuggestedPrompt(suggestion.prompt)}
-                    >
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-base">{suggestion.title}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-gray-600 line-clamp-3">
-                          {suggestion.prompt}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Disclaimer */}
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
-                  <p className="text-sm text-amber-800">
-                    <strong>Important:</strong> This AI provides general medical information only. 
-                    Always consult qualified healthcare professionals for medical advice, diagnosis, or treatment.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="max-w-3xl mx-auto">
-                <div className="space-y-6 pb-4">
-                  {messages.map((message, index) => (
-                    <div
-                      key={message.id}
-                      className={`flex items-start space-x-4 ${
-                        message.role === 'user' ? 'flex-row-reverse space-x-reverse' : ''
-                      }`}
-                    >
-                      {/* Avatar */}
-                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                        message.role === 'user' 
-                          ? 'bg-blue-600 text-white' 
-                          : 'bg-gray-200 text-gray-600'
-                      }`}>
-                        {message.role === 'user' ? (
-                          <User className="h-5 w-5" />
-                        ) : (
-                          <Bot className="h-5 w-5" />
-                        )}
+        {/* Messages Area with Proper Scrollable Box */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="flex-1 overflow-y-auto bg-gray-50">
+            <div className="h-full">
+              {messages.length === 0 ? (
+                <div className="h-full flex items-center justify-center p-4">
+                  <div className="max-w-3xl mx-auto text-center">
+                    {/* Welcome Message */}
+                    <div className="mb-8">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Bot className="h-8 w-8 text-blue-600" />
                       </div>
+                      <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                        Welcome to MedChat AI
+                      </h2>
+                      <p className="text-gray-600 mb-6">
+                        I'm your AI medical assistant. I can help you understand symptoms, medications, 
+                        health conditions, and provide general medical information. How can I assist you today?
+                      </p>
+                      <div className="flex items-center justify-center space-x-2 text-sm text-gray-500">
+                        <Badge variant="secondary">Demo Mode</Badge>
+                        <Badge variant="secondary">Limited Features</Badge>
+                        <Badge variant="secondary">Sign In for Full Access</Badge>
+                      </div>
+                    </div>
 
-                      {/* Message Content */}
-                      <div className={`flex-1 min-w-0 ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
-                        <div className={`inline-block max-w-[85%] ${
-                          message.role === 'user'
-                            ? 'bg-blue-600 text-white rounded-lg px-4 py-3'
-                            : 'bg-white border border-gray-200 rounded-lg px-4 py-3'
+                    {/* Suggested Prompts */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                      {suggestedPrompts.map((suggestion, index) => (
+                        <Card 
+                          key={index} 
+                          className="cursor-pointer hover:shadow-md transition-shadow border-gray-200"
+                          onClick={() => handleSuggestedPrompt(suggestion.prompt)}
+                        >
+                          <CardHeader className="pb-3">
+                            <CardTitle className="text-base">{suggestion.title}</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm text-gray-600 line-clamp-3">
+                              {suggestion.prompt}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+
+                    {/* Disclaimer */}
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                      <p className="text-sm text-amber-800">
+                        <strong>Important:</strong> This AI provides general medical information only. 
+                        Always consult qualified healthcare professionals for medical advice, diagnosis, or treatment.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4">
+                  <div className="max-w-4xl mx-auto space-y-6">
+                    {messages.map((message, index) => (
+                      <div
+                        key={message.id}
+                        className={`flex items-start gap-4 ${
+                          message.role === 'user' ? 'flex-row-reverse' : ''
+                        }`}
+                      >
+                        {/* Avatar */}
+                        <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                          message.role === 'user' 
+                            ? 'bg-blue-600 text-white' 
+                            : 'bg-gray-200 text-gray-600'
                         }`}>
-                          <div className="whitespace-pre-wrap text-sm leading-relaxed break-words word-wrap">
-                            {message.content}
-                            {/* Show typing cursor for assistant messages that are still loading */}
-                            {message.role === 'assistant' && isLoading && index === messages.length - 1 && (
-                              <span className="inline-block w-2 h-4 bg-gray-400 ml-1 animate-pulse"></span>
-                            )}
+                          {message.role === 'user' ? (
+                            <User className="h-5 w-5" />
+                          ) : (
+                            <Bot className="h-5 w-5" />
+                          )}
+                        </div>
+
+                        {/* Message Content */}
+                        <div className={`flex-1 max-w-[80%] ${message.role === 'user' ? 'text-right' : 'text-left'}`}>
+                          <div className={`inline-block rounded-lg px-4 py-3 ${
+                            message.role === 'user'
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-white border border-gray-200 shadow-sm'
+                          }`}>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                              {message.content}
+                              {/* Show typing cursor for assistant messages that are still loading */}
+                              {message.role === 'assistant' && isLoading && index === messages.length - 1 && (
+                                <span className="inline-block w-2 h-4 bg-gray-400 ml-1 animate-pulse"></span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                    <div ref={messagesEndRef} />
+                  </div>
                 </div>
-                <div ref={messagesEndRef} />
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
