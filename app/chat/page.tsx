@@ -188,9 +188,9 @@ function AuthenticatedChat() {
 
   return (
     <ProtectedRoute>
-      <div className="h-screen bg-gray-50 flex overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <div className="fixed inset-0 bg-gray-50 overflow-hidden">
+        {/* Fixed Sidebar */}
+        <div className="fixed left-0 top-0 bottom-0 w-64 bg-white border-r border-gray-200 flex flex-col z-10">
           {/* Header */}
           <div className="p-4 border-b border-gray-200">
             <div className="flex items-center space-x-2 mb-4">
@@ -219,9 +219,9 @@ function AuthenticatedChat() {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col h-full">
-          {/* Chat Header - Fixed */}
-          <div className="bg-white border-b border-gray-200 p-4 flex-shrink-0">
+        <div className="ml-64 flex flex-col h-full">
+          {/* Fixed Chat Header */}
+          <div className="fixed top-0 left-64 right-0 bg-white border-b border-gray-200 p-4 z-10">
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Medical Assistant</h1>
@@ -247,10 +247,13 @@ function AuthenticatedChat() {
             </div>
           </div>
 
-          {/* Messages Area - ONLY THIS SCROLLS */}
-          <div className="flex-1 overflow-y-auto bg-gray-50" style={{ height: 'calc(100vh - 140px)' }}>
+          {/* Scrollable Messages Area */}
+          <div 
+            className="pt-20 pb-32 overflow-y-auto"
+            style={{ height: '100vh' }}
+          >
             {messages.length === 0 ? (
-              <div className="h-full flex items-center justify-center p-4">
+              <div className="flex items-center justify-center min-h-full p-4">
                 <div className="max-w-3xl mx-auto text-center">
                   {/* Welcome Message */}
                   <div className="mb-8">
@@ -355,8 +358,8 @@ function AuthenticatedChat() {
             )}
           </div>
 
-          {/* Input Area - Fixed */}
-          <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
+          {/* Fixed Input Area */}
+          <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-gray-200 p-4 z-10">
             <div className="max-w-3xl mx-auto">
               <form onSubmit={handleSubmit} className="relative">
                 <div className="flex items-end space-x-2">
