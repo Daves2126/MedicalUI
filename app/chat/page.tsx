@@ -67,13 +67,14 @@ function AuthenticatedChat() {
         throw new Error('No authentication token available')
       }
 
-      const response = await fetch('http://localhost:5043/chat', {
+      const response = await fetch(process.env.NEXT_PUBLIC_CHAT_API_URL!, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
+          prompt: currentInput,
           message: currentInput,
           messages: [...messages, userMessage].map(m => ({
             role: m.role,
@@ -139,7 +140,7 @@ function AuthenticatedChat() {
       
       if (token) {
         // Call DELETE endpoint to clear chat on server
-        await fetch('http://localhost:5043/chat', {
+        await fetch(process.env.NEXT_PUBLIC_CHAT_API_URL!, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`,
