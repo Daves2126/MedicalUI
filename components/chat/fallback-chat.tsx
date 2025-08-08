@@ -5,15 +5,17 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Stethoscope, Send, User, Bot, ArrowLeft, Plus, Settings, Square } from 'lucide-react'
+import { Stethoscope, Send, User, Bot, ArrowLeft, Plus, Settings, Square, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 export default function FallbackChat() {
   // Custom chat implementation for fallback
   const [messages, setMessages] = useState<Array<{id: string, role: 'user' | 'assistant', content: string}>>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showClearDialog, setShowClearDialog] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value)
@@ -110,6 +112,20 @@ export default function FallbackChat() {
     setIsLoading(false)
   }
 
+  const clearChat = async () => {
+    try {
+      // In fallback mode, we don't have authentication, so just clear locally
+      console.log('Clearing chat in demo mode')
+    } catch (error) {
+      console.error('Error clearing chat:', error)
+    } finally {
+      // Clear local messages
+      setMessages([])
+      setInput('')
+      setShowClearDialog(false)
+    }
+  }
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -176,10 +192,33 @@ export default function FallbackChat() {
             <Stethoscope className="h-6 w-6 text-blue-600" />
             <span className="text-lg font-bold text-gray-900">MedChat AI</span>
           </div>
-          <Button onClick={newChat} className="w-full" variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            New Chat
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={newChat} className="flex-1" variant="outline">
+              <Plus className="h-4 w-4 mr-2" />
+              New Chat
+            </Button>
+            <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" className="px-3">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear Conversation</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to clear this conversation? This action cannot be undone and will permanently delete all messages in this chat.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={clearChat} className="bg-red-600 hover:bg-red-700">
+                    Clear Chat
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
 
         {/* Empty space */}
